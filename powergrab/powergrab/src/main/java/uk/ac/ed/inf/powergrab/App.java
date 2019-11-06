@@ -12,18 +12,38 @@ public class App
 {
     public static void main( String[] args ) throws IOException
     {
-    	// Classifying input arguments:
+    	// Classifying input arguments, keep as strings for easy printing:
     	
     	String day = args[0]; String month = args[1]; String year = args[2];
     	
-    	String latitude = args[3]; String longitude = args[4];
+    	String latitude = args[3]; String longitude = args[4]; // Starting position of drone
     	
     	String seed = args[5];
     	
     	String droneVersion = args[6];
-
     	
-    		// First step: get the map from server like in the slides
+    	Random rnd = new Random(Integer.parseInt(seed)); // Initialise random variable based on seed
+
+    	Position dronePosition = new Position(Double.parseDouble(latitude), Double.parseDouble(longitude));
+    	
+    	
+    	// testing out random direction assignment:
+    	
+    	System.out.println(dronePosition.getPosition()); // Starting position
+    	
+    	int randomDirection = rnd.nextInt(16);
+    	
+    	System.out.println(Direction.values()[randomDirection]);
+    	
+    	
+    	
+    	dronePosition = dronePosition.nextPosition( Direction.values()[randomDirection] );
+    	
+    	System.out.println(dronePosition.getPosition());
+    	
+    	//System.out.println( Direction.values()[2] );
+    	
+    	// First step: get the map from server like in the slides
     	
     	String mapString = "http://homepages.inf.ed.ac.uk/stg/powergrab/" 
     			
@@ -50,10 +70,8 @@ public class App
     	//System.out.println(mapSource);
     	
     	
-    		// Third step :initialising the random seed
+ 
     	
-    	//private java.util.Random rnd;
-    	Random rnd = new Random(Integer.parseInt(seed));	
     	
     	//Testing the consistency of the seed output (1 to 16 for each direction)
     	//for(int i = 0 ; i<10 ; i++) // in method
@@ -75,6 +93,13 @@ public class App
     	//'dronetype-DD-MM-YYYY.geojson'
     	
     	// Copy of the map 
+    	
+    	//Position testing: (drone always moves by the same amount)	
+    	// Q: How close does drone have to be to a station to gain it's effect?
+    	
+    	//Position test = new Position(55.944425, -3.188396);
+    	//System.out.println( (test.nextPosition(Direction.SE) ).getPosition());
+    	
     	}
     
     static String streamTostring(java.io.InputStream is) {
