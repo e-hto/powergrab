@@ -1,16 +1,18 @@
 package uk.ac.ed.inf.powergrab;
 import java.io.IOException;
+import java.io.*;
 import java.net.*;
+import java.util.*;
 
 /**
  * Hello world!
- *
+ * Geo-json maps: http://homepages.inf.ed.ac.uk/stg/powergrab/
  */
 public class App 
 {
     public static void main( String[] args ) throws IOException
     {
-    	// Input:
+    	// Classifying input arguments:
     	
     	String day = args[0]; String month = args[1]; String year = args[2];
     	
@@ -21,15 +23,17 @@ public class App
     	String droneVersion = args[6];
 
     	
-    	// First step: get the map from server like in the slides
+    		// First step: get the map from server like in the slides
     	
     	String mapString = "http://homepages.inf.ed.ac.uk/stg/powergrab/" 
     			
     					+ year + "/" + month + "/" + day + "/powergrabmap.geojson";
+    	//For testing:
+    	//System.out.println(mapString); 
     	
     	URL mapUrl = new URL(mapString);
     	
-    	//Connecting to URL:
+    		// Second step connecting to URL to retrive map:
     	
     	URLConnection conn = mapUrl.openConnection();
     	conn.setReadTimeout(10000); // milliseconds
@@ -37,12 +41,24 @@ public class App
     	//conn.setRequestMethod("GET");
     	conn.setDoInput(true);
     	conn.connect(); // Starts the query
+     	
+    	InputStream stream = conn.getInputStream();
+    	
+    	String mapSource = streamTostring(stream);
+ 
+    	//For testing: 
+    	//System.out.println(mapSource);
     	
     	
+    		// Third step :initialising the random seed
     	
+    	//private java.util.Random rnd;
+    	Random rnd = new Random(Integer.parseInt(seed));	
     	
+    	//Testing the consistency of the seed output (1 to 16 for each direction)
+    	//for(int i = 0 ; i<10 ; i++) // in method
+    		//System.out.print(rnd.nextInt(16) +" ");
     	
-    	//System.out.println(mapUrl); mapUrl Works!
     	
     	//Output files:
     	
@@ -59,14 +75,13 @@ public class App
     	//'dronetype-DD-MM-YYYY.geojson'
     	
     	// Copy of the map 
-    	
-    	
-    	
-    	  
+    	}
     
-    	
-   
-    		
-    	
+    static String streamTostring(java.io.InputStream is) {
+        java.util.Scanner scanner = new java.util.Scanner(is);
+		java.util.Scanner s = scanner.useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
     }
+    
+  
 }
