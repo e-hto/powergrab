@@ -4,11 +4,16 @@ import java.io.InputStream;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
+import com.mapbox.geojson.*;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Point;
+import com.mapbox.geojson.Geometry;
+
 /**
  * Hello world!
  * Give a minus bias for negatives at a position and plus for positives
@@ -51,32 +56,61 @@ public class App
         
         // Choosing a direction at random:
         
+        //Edit to test distance over 5 moves
         int min = 0; int max = 15;
-        Direction chosenDirection = directions[ random.nextInt( (max - min) + 1) + min ]; 
+        Direction chosenDirection = directions[0]; 
+        //Direction chosenDirection = directions[ random.nextInt( (max - min) + 1) + min ]; 
         drone = drone.nextPosition(chosenDirection);
         System.out.println("Randomly chosen direction: " + chosenDirection);
         System.out.println("New position is " + drone.getPosition());
         
         // Searching for local stations:
- 
+        
         ArrayList<Feature> closeFeatures = new ArrayList(); // Keep this list updated every 5 moves with close features to consider
         FeatureCollection fc = FeatureCollection.fromJson(map);
-        for (Feature f : fc.features()) {
-           
-        	
-        	System.out.println(f);	
         
+        
+        /*
+        
+        
+        for (Feature f : fc.features()) {
+            
+        	//Getting feature and drone coordinates:
+        	Geometry g = f.geometry(); 
+        	List c = ((Point) g).coordinates();
+        	double featureLa = (double) c.get(1);
+        	double featureLo = (double) c.get(0);
+        	//System.out.println(featureLa);
+        	//System.out.println(featureLo);
+        	Double droneLa = drone.latitude;
+            Double droneLo = drone.longitude;
+            
+            // Check if this feature is within 5 movement distances of the drone position
+            
+            // 1st step: calculate how far a move is
+            Double x1 = droneLa; Double y1 = droneLo; Double x2 = featureLa; Double y2 = featureLo;
+            Double distance = Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
+            
+            System.out.println(distance);
+            
+        	//System.out.println(f);	
+        
+        }
+        
+        
+        */
+            
         //Ideas: 
         //Iterate through entire list of features then rank them from closest to farthest??? prob not
         //Every 5 moves or so, iterate through all feature and add those fairly close (maybe no farther than could be travelled
         //within 5 moves) to a 'local station shortlist'
         //Consult the shortlist to see which of the local features are in range of one move and which station is best
         //
-        //Every feature has ( f.geometry() ).coordinates() ); and 
+        //Every feature has ( f.geometry() ).coordinates() ; and 
         // getAsString( f.getProperty("coins")) ; // Coins at f - String
         // getAsFloat( f.getProperty("coins") ) ; // Coins at f - Float
         	
-        }
+        
         
         
         
