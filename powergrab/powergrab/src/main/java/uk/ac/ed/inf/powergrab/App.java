@@ -1,84 +1,74 @@
 package uk.ac.ed.inf.powergrab;
 import java.io.IOException;
-import java.io.*;
 import java.net.*;
-import java.util.*;
+import java.util.Random;
 
 /**
  * Hello world!
- * Geo-json maps: http://homepages.inf.ed.ac.uk/stg/powergrab/
+ * Give a minus bias for negatives at a position and plus for positives
  */
 public class App 
 {
     public static void main( String[] args ) throws IOException
     {
-    	// Classifying input arguments, keep as strings for easy printing:
-    	
+    	// Sort input:
     	String day = args[0]; String month = args[1]; String year = args[2];
-    	
-    	String latitude = args[3]; String longitude = args[4]; // Starting position of drone
-    	
+    	String latitude = args[3]; String longitude = args[4];
     	String seed = args[5];
-    	
     	String droneVersion = args[6];
+    	System.out.println("Drone type: " + droneVersion + "\nStarting at Latitude: " + latitude + " Longitude: " + longitude );
     	
-    	Random rnd = new Random(Integer.parseInt(seed)); // Initialise random variable based on seed
-
-    	Position dronePosition = new Position(Double.parseDouble(latitude), Double.parseDouble(longitude));
-    	
-    	
-    	// testing out random direction assignment:
-    	
-    	System.out.println(dronePosition.getPosition()); // Starting position
-    	
-    	int randomDirection = rnd.nextInt(16);
-    	
-    	System.out.println(Direction.values()[randomDirection]);
-    	
-    	
-    	
-    	dronePosition = dronePosition.nextPosition( Direction.values()[randomDirection] );
-    	
-    	System.out.println(dronePosition.getPosition());
-    	
-    	//System.out.println( Direction.values()[2] );
-    	
-    	// First step: get the map from server like in the slides
-    	
-    	String mapString = "http://homepages.inf.ed.ac.uk/stg/powergrab/" 
-    			
-    					+ year + "/" + month + "/" + day + "/powergrabmap.geojson";
-    	//For testing:
-    	//System.out.println(mapString); 
-    	
+        //Receiving map from server:
+    	String mapString = "http://homepages.inf.ed.ac.uk/stg/powergrab/" + year + "/" + month + "/" + day + "/powergrabmap.geojson";
     	URL mapUrl = new URL(mapString);
-    	
-    		// Second step connecting to URL to retrive map:
-    	
     	URLConnection conn = mapUrl.openConnection();
     	conn.setReadTimeout(10000); // milliseconds
     	conn.setConnectTimeout(15000); // milliseconds
     	//conn.setRequestMethod("GET");
     	conn.setDoInput(true);
     	conn.connect(); // Starts the query
-     	
-    	InputStream stream = conn.getInputStream();
     	
-    	String mapSource = streamTostring(stream);
- 
-    	//For testing: 
-    	//System.out.println(mapSource);
+    	//Set up the drone conditions:
+    	Position drone = new Position(Double.parseDouble(latitude), Double.parseDouble(longitude));
+    	Random random = new Random(Integer.parseInt(seed)); // Initialise random number generator from seed
+        Direction directions[] = Direction.values(); // Create an Array of possible directions to randomly select from
+        //End of setup
+        
+        
+        
+        // Choosing a direction:
+        
+        int min = 0; int max = 15;
+        Direction chosenDirection = directions[ random.nextInt( (max - min) + 1) + min ]; 
+        drone = drone.nextPosition(chosenDirection);
+        System.out.println("Randomly chosen direction: " + chosenDirection);
+        System.out.println("New position is " + drone.getPosition());
+        
+        // Searching for local stations:
+        
+        
+        
+        
     	
+
     	
- 
-    	
-    	
-    	//Testing the consistency of the seed output (1 to 16 for each direction)
-    	//for(int i = 0 ; i<10 ; i++) // in method
-    		//System.out.print(rnd.nextInt(16) +" ");
-    	
-    	
-    	//Output files:
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    	//Output:
     	
     	//'dronetype-DD-MM-YYYY.txt' dronetype is 'stateful' or 'stateless'
     	
@@ -94,19 +84,17 @@ public class App
     	
     	// Copy of the map 
     	
-    	//Position testing: (drone always moves by the same amount)	
-    	// Q: How close does drone have to be to a station to gain it's effect?
     	
-    	//Position test = new Position(55.944425, -3.188396);
-    	//System.out.println( (test.nextPosition(Direction.SE) ).getPosition());
     	
-    	}
+    	  
     
-    static String streamTostring(java.io.InputStream is) {
-        java.util.Scanner scanner = new java.util.Scanner(is);
-		java.util.Scanner s = scanner.useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
+    	
+   
+    		
+    	
     }
     
-  
+
+ 
+
 }
