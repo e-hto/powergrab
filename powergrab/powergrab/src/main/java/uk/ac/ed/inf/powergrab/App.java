@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
-import com.mapbox.geojson.*;
+import com.google.gson.JsonElement;
+//import com.mapbox.geojson.*;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
@@ -22,11 +23,13 @@ import com.mapbox.geojson.Geometry;
 public class App 
 {
     public static void main( String[] args ) throws IOException
-    {
+    {   //INITIAL SETUP:************
+    	// ************************
     	// Sort input:
     	String day = args[0]; String month = args[1]; String year = args[2];
     	String latitude = args[3]; String longitude = args[4];
-    	String seed = args[5];
+    	String seed 
+    	= args[5];
     	String droneVersion = args[6];
     	System.out.println("Drone type: " + droneVersion + "\nStarting at Latitude: " + latitude + " Longitude: " + longitude );
     	
@@ -43,125 +46,210 @@ public class App
     	Scanner s = new Scanner(mapSource).useDelimiter("\\A"); //Convert from inputStream to String
     	String map = s.hasNext() ? s.next() : ""; // Final map
     	//System.out.println(map);
-    	 
+    	FeatureCollection fc = FeatureCollection.fromJson(map);
+    	
     	//Set up the drone conditions:
-    	Position drone = new Position(Double.parseDouble(latitude), Double.parseDouble(longitude));
+    	Position startPosition = new Position(Double.parseDouble(latitude), Double.parseDouble(longitude));
+    	Drone drone = new Drone(startPosition);
     	Random random = new Random(Integer.parseInt(seed)); // Initialise random number generator from seed
         Direction directions[] = Direction.values(); // Create an Array of possible directions to randomly select from
+        //END OF INITIAL SETUP ***************        
         //************************************
-        //END OF SETUP ***********************
         
         
         
         
-        // Choosing a direction at random:
-        
-        //Edit to test distance over 5 moves
-        int min = 0; int max = 15;
-        Direction chosenDirection = directions[0]; 
-        //Direction chosenDirection = directions[ random.nextInt( (max - min) + 1) + min ]; 
-        drone = drone.nextPosition(chosenDirection);
-        System.out.println("Randomly chosen direction: " + chosenDirection);
-        System.out.println("New position is " + drone.getPosition());
-        
-        // Searching for local stations:
-        
-        ArrayList<Feature> closeFeatures = new ArrayList(); // Keep this list updated every 5 moves with close features to consider
-        FeatureCollection fc = FeatureCollection.fromJson(map);
-        
-        
-        /*
-        
-        
-        for (Feature f : fc.features()) {
-            
-        	//Getting feature and drone coordinates:
-        	Geometry g = f.geometry(); 
-        	List c = ((Point) g).coordinates();
-        	double featureLa = (double) c.get(1);
-        	double featureLo = (double) c.get(0);
-        	//System.out.println(featureLa);
-        	//System.out.println(featureLo);
-        	Double droneLa = drone.latitude;
-            Double droneLo = drone.longitude;
-            
-            // Check if this feature is within 5 movement distances of the drone position
-            
-            // 1st step: calculate how far a move is
-            Double x1 = droneLa; Double y1 = droneLo; Double x2 = featureLa; Double y2 = featureLo;
-            Double distance = Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
-            
-            System.out.println(distance);
-            
-        	//System.out.println(f);	
-        
-        }
-        
-        
-        */
-            
-        //Ideas: 
-        //Iterate through entire list of features then rank them from closest to farthest??? prob not
-        //Every 5 moves or so, iterate through all feature and add those fairly close (maybe no farther than could be travelled
-        //within 5 moves) to a 'local station shortlist'
-        //Consult the shortlist to see which of the local features are in range of one move and which station is best
-        //
-        //Every feature has ( f.geometry() ).coordinates() ; and 
-        // getAsString( f.getProperty("coins")) ; // Coins at f - String
-        // getAsFloat( f.getProperty("coins") ) ; // Coins at f - Float
-        	
-        
-        
-        
-        
-        
-        
-    	
+        // BEGIN MOVING:
 
-    	
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-    	//Output:
-    	
-    	//'dronetype-DD-MM-YYYY.txt' dronetype is 'stateful' or 'stateless'
-    	
-    	/*It contains each move of the drone in terms of the latitude and longitude
-    	of the drone before the move, the direction it chose to move, the latitude and longitude of the drone
-    	after the move, and the values of the coins and power for the drone after the move.
-    	
-    	Ex:
-    	
-    	55.944425,-3.188396,SSE,55.944147836140246,-3.1882811949702905,0.0,248.75 */
-    	
-    	//'dronetype-DD-MM-YYYY.geojson'
-    	
-    	// Copy of the map 
-    	
-    	
-    	
-    	  
+       ArrayList<Feature> closeFeatures = new ArrayList(); // Keep this list updated every 5 moves with close features
+       int moves = 0;
+       while( drone.power > 0) {
+        	  
+           
+            if ( moves / 5 == 0) { //Update close features every 5 moves *******        
+              for (Feature f : fc.features()) {
+        	
+            		Double distance = calculateDistance(drone, f);
+            
+            		if ( distance <= 0.0015 ) {
+            			
+            			closeFeatures.add(f);}
+                                                 }
+                                  } 
+            //*************Every 5 moves***************
+            //*****************************************              
+            
+                 
+                    //MOVE SELECTION:
+                 
+                 ArrayList<Feature> inRangeFeatures = new ArrayList();
+                 for (Feature f : closeFeatures) {
+                	  
+                	 Double distance = calculateDistance(drone, f);
+        	   
+                     if (distance <= 0.0003 + 0.00025) {//Search for features within moving distance 0.0003 + absorbing distance 0.00025 
+                    	
+                    	 //Get coins:
+                    	Double coins = Double.parseDouble(f.getProperty("coins").getAsString());
+                    	System.out.println("In range with coins: " + coins );
+                    	
+                         //Get power:
+                    	Double power = Double.parseDouble(f.getProperty("power").getAsString());
+                    	System.out.println("and power: " + power );
+                    	
+                		//System.out.println("Feature found in range: " + f);
+                		inRangeFeatures.add(f); 
+                		
+                		
+                                              }
+                 	}
+                 
+                 
+                     Feature maxScoringF = null;
+                     Double maxScore = 0.0;
+                 for (Feature f : inRangeFeatures) {
+                	 
+                	 
+                	 Double coins = Double.parseDouble(f.getProperty("coins").getAsString());
+                	 Double power = Double.parseDouble(f.getProperty("power").getAsString());
+                	 
+                	 
+                	 // Give each inRangeFeature a score
+                	 // Save the f with max score as list progresses
+                	 
+                	 Double powerMultiplier = 250.0/drone.power; // Drone will prioritise high power stations when it is running low
+                	 Double score  = coins + (power * powerMultiplier); // Test and edit this to boost powerMultiplier to balance with coins
+                	 
+                	 if ( score > maxScore ) {
+                		 
+                		 maxScore = score;
+                		 maxScoringF = f;
+                		 
+                	 }
+                    }
+                 
+                 
+                 //If  maxScoringF exists, move to it
+
+                       //if ( maxScoringF != null ) {
+                    	   
+                       //Calculate degrees to F and then move in closest direction   
+                       //} else { 
+                       
+                       moveRandom(drone, directions, random); // If no good moves are found, move at random
+                       
+                       //}
+                      //Move completed!
+                 		moves++;
+
+    }
+       
+    System.out.println("Run out of fuel!");
+    }
+
     
+    
+    public static double calculateDistance(Drone drone, Feature f){
+    	//Getting feature and drone coordinates:
+		Geometry g = f.geometry(); 
+		List c = ((Point) g).coordinates();
+		double featureLa = (double) c.get(1);
+		double featureLo = (double) c.get(0);
+		//System.out.println(featureLa);
+		//System.out.println(featureLo);
+		Double droneLa = drone.position.latitude;
+		Double droneLo = drone.position.longitude;
+
+		Double x1 = droneLa; Double y1 = droneLo; Double x2 = featureLa; Double y2 = featureLo;
+		Double distance = Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));;
     	
-   
-    		
-    	
+        return distance;
     }
     
 
+ 	public static void moveRandom(Drone drone, Direction[] directions, Random random) { //Always stays within bounds
+ 		
+        int min = 0; int max = 15; // Bounds for possible directions
+        Boolean nextMoveInBounds = false;
+        
+        while ( !nextMoveInBounds )  { 
+       // If the randomly chosen next move doesn't stay inside play area, keep picking another until it does
+       
+        Direction randomDirection = directions[ random.nextInt( (max - min) + 1) + min ]; // Random direction from seed
+        Position nextPosition = drone.position.nextPosition( randomDirection );
+        
+        if (nextPosition.inPlayArea()) {
+        	
+        nextMoveInBounds = true;	
+        drone.position = nextPosition;
+        drone.power = drone.power - 1.25; 
+        System.out.println("Randomly chosen direction: " + randomDirection);
+        System.out.println("New position is " + drone.position.getPosition());
+        }
+        
+ 	}
+        
+
+ 	}
+ 	
+ 	//public static 
+}
+
+// NOTES: ***************************************************
+
+//TO DO:
+// Calculate degrees from drone to feature method
+// After every move, absorb the nearby stations
+
+
+//What to do with station after visiting:
+//For example, if a user with 35.5 coins and 15.0 power comes within 0.00025 degrees of a charging
+//station with −10.2 coins and −20.8 power then afterwards the user will have 25.3 coins and 0.0 power
+//whereas the charging station will have 0.0 coins and −5.8 power
+
+//  0.0015 Is the farthest the drone could travel in 5 moves
+//  0.0003 distance travelled every move
+// //Absorbing distance is 0.00025
+
+//Ideas: 
+//Iterate through entire list of features then rank them from closest to farthest??? prob not
+//Every 5 moves or so, iterate through all feature and add those fairly close (maybe no farther than could be travelled
+//within 5 moves) to a 'local station shortlist'
+//Consult the shortlist to see which of the local features are in range of one move and which station is best
+//
+//Every feature has ( f.geometry() ).coordinates() ; and 
+// getAsString( f.getProperty("coins")) ; // Coins at f - String
+// getAsFloat( f.getProperty("coins") ) ; // Coins at f - Float
+	
+//Distance testing: 
+//Double Tx1 = Double.parseDouble(latitude); Double Ty1 = Double.parseDouble(longitude); // Starting position
+//Double Tx2 = drone.latitude; Double Ty2 = drone.longitude; // Final position
+//Double distanceTest = Math.sqrt((Ty2 - Ty1) * (Ty2 - Ty1) + (Tx2 - Tx1) * (Tx2 - Tx1)); // Distance travelled
+//System.out.println(distanceTest);        
+
+//Final Output:
+
+//'dronetype-DD-MM-YYYY.txt' dronetype is 'stateful' or 'stateless'
+
+/*It contains each move of the drone in terms of the latitude and longitude
+of the drone before the move, the direction it chose to move, the latitude and longitude of the drone
+after the move, and the values of the coins and power for the drone after the move.
+
+Ex:
+
+55.944425,-3.188396,SSE,55.944147836140246,-3.1882811949702905,0.0,248.75 */
+
+//'dronetype-DD-MM-YYYY.geojson'
+
+// Copy of the map 
+
+//Get power: (Old method)
+//JsonElement p = f.getProperty("power");
+//String powerString = p.getAsString();
+//Double power = Double.parseDouble(powerString);
+//System.out.println("In range with power: " + powerString );
+    
+//************************************************************
  
 
-}
+
