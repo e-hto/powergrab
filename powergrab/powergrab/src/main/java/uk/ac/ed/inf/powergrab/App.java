@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -59,14 +60,14 @@ public class App
         
         
         
-        // BEGIN MOVING:
+        // CLOSE FEATURES SETUP:
 
-       ArrayList<Feature> closeFeatures = new ArrayList(); // Keep this list updated every 5 moves with close features
+       HashSet<Feature> closeFeatures = new HashSet(); // Keep this list updated every 5 moves with close features
        int moves = 0;
        while( drone.power > 0) {
         	  
-           
-            if ( moves / 5 == 0) { //Update close features every 5 moves *******        
+            //*******************************************
+            if ( moves / 5 == 0) { //Update close features every 5 moves
               for (Feature f : fc.features()) {
         	
             		Double distance = calculateDistance(drone, f);
@@ -82,7 +83,7 @@ public class App
                  
                     //MOVE SELECTION:
                  
-                 ArrayList<Feature> inRangeFeatures = new ArrayList();
+                 HashSet<Feature> inRangeFeatures = new HashSet();
                  for (Feature f : closeFeatures) {
                 	  
                 	 Double distance = calculateDistance(drone, f);
@@ -98,7 +99,7 @@ public class App
                     	System.out.println("and power: " + power );
                     	
                 		//System.out.println("Feature found in range: " + f);
-                		inRangeFeatures.add(f); 
+                		inRangeFeatures.add(f); //Only add if inRangeFeatures doesn't already contain f: change to using a set instead
                 		
                 		
                                               }
@@ -124,6 +125,7 @@ public class App
                 		 
                 		 maxScore = score;
                 		 maxScoringF = f;
+                		 //System.out.println("MAX: " + maxScoringF);
                 		 
                 	 }
                     }
@@ -144,23 +146,20 @@ public class App
 
     }
        
-    System.out.println("Run out of fuel!");
+    System.out.println("Run out of fuel!"); //Finished
     }
 
     
     
     public static double calculateDistance(Drone drone, Feature f){
-    	//Getting feature and drone coordinates:
-		Geometry g = f.geometry(); 
-		List c = ((Point) g).coordinates();
-		double featureLa = (double) c.get(1);
-		double featureLo = (double) c.get(0);
-		//System.out.println(featureLa);
-		//System.out.println(featureLo);
-		Double droneLa = drone.position.latitude;
-		Double droneLo = drone.position.longitude;
+    	
+    	Double dLa = drone.position.latitude;
+		Double dLo = drone.position.longitude;
+    	
+    	Double fLa = ((Point)f.geometry()).coordinates().get(1);
+    	Double fLo = ((Point)f.geometry()).coordinates().get(0);
 
-		Double x1 = droneLa; Double y1 = droneLo; Double x2 = featureLa; Double y2 = featureLo;
+		Double x1 = dLa; Double y1 = dLo; Double x2 = fLa; Double y2 = fLo;
 		Double distance = Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));;
     	
         return distance;
@@ -192,7 +191,24 @@ public class App
 
  	}
  	
- 	//public static 
+ 	 public static Direction directionToFeature(Drone drone, Feature f) {
+ 		 
+ 		 Double dLa = drone.position.latitude;
+ 		 Double dLo  = drone.position.longitude;
+ 		 
+ 		 Double fLa = ((Point)f.geometry()).coordinates().get(1);
+ 		 Double fLo = ((Point)f.geometry()).coordinates().get(0);
+ 		 
+ 		 Double x1 = dLa; Double y1 = dLo; Double x2 = fLa; Double y2 = fLo;
+ 		
+ 		 Double theta = Math.atan2(x1 - y1 , x2 - y2);
+ 		 
+ 		 //if ( theta < )
+ 		 
+ 		 
+ 		 
+ 		 return null;
+ 	 }
 }
 
 // NOTES: ***************************************************
