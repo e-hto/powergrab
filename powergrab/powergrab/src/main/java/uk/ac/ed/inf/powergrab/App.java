@@ -133,13 +133,13 @@ public class App
                  
                  //If  maxScoringF exists, move to it
 
-                      // if ( maxScoringF != null ) {
+                        if ( maxScoringF != null ) {
                     	   
                        
-                      // moveTo( drone, directionToFeature(drone, maxScoringF) ) ; 
-                     //  } else {
+                        moveTo( drone, directionToFeature(drone, maxScoringF) ) ; 
+                        } else {
                        moveRandom(drone, directions, random); // If no good moves are found, move at random
-                     //  }
+                        }
                       //Move completed!
                  		moves++;
 
