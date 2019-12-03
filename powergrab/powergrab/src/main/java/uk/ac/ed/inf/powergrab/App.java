@@ -203,11 +203,74 @@ public class App
  		
  		 Double theta = Math.atan2(x1 - y1 , x2 - y2);
  		 
- 		 //if ( theta < )
- 		 
- 		 
- 		 
- 		 return null;
+ 		 //Now find the direction to travel which will lead to the feature:
+ 		 if ( (theta > 348.75 && theta <= 360) || (theta < 11.25 && theta >= 0) ) {
+ 			 
+ 			 return Direction.N;
+ 			 
+ 		 }
+ 		 if ( theta >= 11.25 && theta < 33.75) {
+ 			 
+ 			 return Direction.NNE;
+ 		 }
+ 		 if ( theta >= 33.75 && theta < 56.25) {
+			 
+			 return Direction.NE;
+		 }
+ 		 if ( theta >= 56.25 && theta < 78.75) {
+			 
+			 return Direction.ENE;
+		 }
+ 		 if ( theta >= 78.75 && theta < 111.25) {
+			 
+ 			return Direction.E;
+		 }
+ 		 if ( theta >= 111.25 && theta < 123.75) {
+			 
+ 			return Direction.ESE;
+		 }
+ 		 if (theta >= 123.75 && theta < 146.25) {
+ 			 
+ 			return Direction.SE;
+ 		 }
+ 		 if (theta >= 146.25 && theta < 168.75) {
+ 			 
+ 			 return Direction.SSE;
+ 		 }
+ 		 if (theta >= 168.75 && theta < 191.25) {
+ 			 
+ 			 return Direction.S;
+ 		 }	
+ 	     if ( theta >= 191.25 && theta < 213.75) {
+ 	 			 
+ 	 	     return Direction.SSW;
+ 	    }
+ 		 if ( theta >= 213.75 && theta < 236.25) {
+			 
+ 			return Direction.SW;
+		 }
+ 		 if (theta >= 236.25 && theta < 258.75) {
+ 			 
+ 			return Direction.WSW;
+ 		 }
+ 		 if (theta >= 258 && theta < 281.25) {
+ 			 
+ 			 return Direction.W;
+ 		 }
+ 		 if (theta >= 281.25 && theta < 303.75) {
+ 			 
+ 			 return Direction.WNW;
+ 		 }	
+ 	     if ( theta >= 303.75 && theta < 326.25) {
+ 	 			 
+ 	 	     return Direction.NW;
+ 	     }
+ 	     if ( theta >= 326.25 && theta < 348.75) {
+ 	    	 
+ 	    	 return Direction.NNW;
+ 	     }
+ 	 
+ 		 return Direction.N;
  	 }
 }
 
