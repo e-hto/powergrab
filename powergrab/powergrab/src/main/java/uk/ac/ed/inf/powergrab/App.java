@@ -133,14 +133,13 @@ public class App
                  
                  //If  maxScoringF exists, move to it
 
-                       //if ( maxScoringF != null ) {
+                      // if ( maxScoringF != null ) {
                     	   
-                       //Calculate degrees to F and then move in closest direction   
-                       //} else { 
                        
+                      // moveTo( drone, directionToFeature(drone, maxScoringF) ) ; 
+                     //  } else {
                        moveRandom(drone, directions, random); // If no good moves are found, move at random
-                       
-                       //}
+                     //  }
                       //Move completed!
                  		moves++;
 
@@ -164,7 +163,14 @@ public class App
     	
         return distance;
     }
-    
+    public static void moveTo(Drone drone, Direction direction) {
+    	
+    	drone.position = drone.position.nextPosition(direction);
+    	drone.power = drone.power - 1.25;
+    	System.out.println("Selected max scoring direction: " + direction);
+        System.out.println("New position is " + drone.position.getPosition());
+    	
+    }
 
  	public static void moveRandom(Drone drone, Direction[] directions, Random random) { //Always stays within bounds
  		
